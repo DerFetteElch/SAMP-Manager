@@ -595,10 +595,50 @@ void Client::readyRead(){
             if(userAdmin==1 || xml->getAttribute(QString("data/server/server_%1/owner").arg(serverId),"value",0)==userId){
                 QString cmd;
                 in>>cmd;
-                QString ret=samp->rconCmd(serverId,cmd);
-                if(!ret.isNull()){
+                rconData=samp->rconCmd(serverId,cmd);
+                if(rconData.count()>0){
                     out<<PACKET_SC_RCON;
-                    out<<ret;
+                    out<<rconData.at(0);
+                    rconData.removeAt(0);
+
+
+                    /*
+                    QString temp;
+                    for(int i=0;i<ret.count();i++){
+                        if(temp.size()+ret.at(i).size()>128){
+                            QByteArray block;
+                            QDataStream out(&block,QIODevice::WriteOnly);
+                            out<<PACKET_SC_RCON;
+                            out<<temp.append("\n");
+                            qDebug()<<temp.append("\n");
+                            send(block);
+                            temp=QString(ret.at(i)).append("\n");
+                        }else{
+                            temp.append(ret.at(i)).append("\n");
+                        }
+                    }
+                    QByteArray block;
+                    QDataStream out(&block,QIODevice::WriteOnly);
+                    out<<PACKET_SC_RCON;
+                    out<<temp.append("\n");
+                    qDebug()<<temp.append("\n");
+                    send(block);+
+                    return;*/
+                }else{
+                    out<<PACKET_SC_RCON_FAIL;
+                }
+            }else{
+                out<<PACKET_SC_RCON_FAIL;
+            }
+        }else if(id==PACKET_CS_RCON_NEXT){
+            int serverId;
+            in>>serverId;
+
+            if(userAdmin==1 || xml->getAttribute(QString("data/server/server_%1/owner").arg(serverId),"value",0)==userId){
+                if(rconData.count()>0){
+                    out<<PACKET_SC_RCON;
+                    out<<rconData.at(0);
+                    rconData.removeAt(0);
                 }else{
                     out<<PACKET_SC_RCON_FAIL;
                 }

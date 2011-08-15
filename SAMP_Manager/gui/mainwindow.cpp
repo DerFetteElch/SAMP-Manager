@@ -575,9 +575,14 @@ void MainWindow::sendResponse(QByteArray data){
         fileTransferDialog->close();
         setEnabled(true);
     }else if(id==PACKET_SC_RCON){
-        QString dat;
-        stream>>dat;
-        ui->rconConsole->appendPlainText(dat);
+        QString text;
+        stream>>text;
+        ui->rconConsole->appendPlainText(text);
+        QByteArray dat;
+        QDataStream out(&dat,QIODevice::WriteOnly);
+        out<<PACKET_CS_RCON_NEXT;
+        out<<serverList.value(ui->serverList->currentItem());
+        emit(send(dat));
     }
     data.clear();
 }
@@ -615,6 +620,7 @@ void MainWindow::on_tabWidget_currentChanged(int index){
 }
 
 void MainWindow::on_serverList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous){
+    ui->rconConsole->setPlainText("");
     QByteArray data;
     QDataStream out(&data,QIODevice::WriteOnly);
     out<<PACKET_CS_GET_SERVERINFO;

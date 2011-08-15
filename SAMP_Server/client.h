@@ -55,6 +55,7 @@ class Client : public QThread{
         QStringList fileManagerPath;
 
         FileData dataFile;
+        QStringList rconData;
 
     private slots:
         void readyRead();

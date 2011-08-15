@@ -287,35 +287,12 @@ SAMPServerInfo SAMPServer::getServerInfo(int serverId){
     serverInfo.mapName=mapName;
     return serverInfo;
 }
-QString SAMPServer::rconCmd(int serverId, QString cmd){
+QStringList SAMPServer::rconCmd(int serverId, QString cmd){
     if(getServerInfo(serverId).online){
         int port=xml->getAttribute(QString("data/server/server_%1/port").arg(serverId),"value",0);
         QString rconPassword=xml->getAttribute(QString("data/server/server_%1/config/rconPassword").arg(serverId),"value","");
 
-        QFile file(QString("server_%1_rcon.php").arg(serverId));
-        file.open(QIODevice::WriteOnly);
-        file.write("<?php\n");
-        file.write("require \"SampRconAPI.php\";\n");
-        file.write(QString("$rcon=new SampRconAPI(\"127.0.0.1\",%1,%2);\n").arg(port).arg(rconPassword).toAscii());
-        file.write(QString("$data=$rcon->Call(\"%1\",0.3);\n").arg(cmd).toAscii());
-        file.write("for($i=0;$i<sizeof($data);$i++){\n");
-        file.write("    if($data[$i]==\"\") break;\n");
-        file.write("    echo $data[$i].\"\\n\";\n");
-        file.write("}\n");
-        file.write("?>");
-        file.close();
-
-        QProcess process;
-        process.start("php",QStringList()<<QString("server_%1_rcon.php").arg(serverId));
-        process.closeWriteChannel();
-        process.waitForFinished();
-        QByteArray returnData=process.readAll();
-        if(!returnData.isEmpty()){
-            return returnData;
-        }else{
-            return QString();
-        }
-        /*QByteArray data;
+        QByteArray data;
         data.append("SAMP");
         data.append((char)127);
         data.append((char)0);
@@ -344,22 +321,27 @@ QString SAMPServer::rconCmd(int serverId, QString cmd){
         udpSocket.waitForReadyRead();
 
         QByteArray returnData=udpSocket.readAll();
-        QByteArray sep=returnData.left(11);
-        returnData.remove(0,11);
-        returnData.replace(sep,"\n");
-        QList<QByteArray> byteLines=returnData.split('\n');
-        QByteArray ret;
-        for(int i=0;i<byteLines.count();i++){
-            QByteArray line=byteLines.at(i);
-            line.remove(0,2);
-            if(line.size()>1){
-                ret.append(line);
-                ret.append("\n");
+
+        if(!returnData.isEmpty()){
+            QByteArray sep=returnData.left(11);
+            returnData.remove(0,11);
+            returnData.replace(sep,"\n");
+            QList<QByteArray> byteLines=returnData.split('\n');
+            QStringList ret;
+            for(int i=0;i<byteLines.count();i++){
+                QByteArray line=byteLines.at(i);
+                line.remove(0,2);
+                if(line.size()>1){
+                    ret.append(QString(line));
+                }
             }
-        }*/
-        //return ret;
+            ret.append("\n");
+            return ret;
+        }else{
+            return QStringList();
+        }
     }else{
-        return QString();
+        return QStringList();
     }
 }
 

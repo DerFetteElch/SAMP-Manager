@@ -45,7 +45,7 @@ class SAMPServer{
         bool restartServer(int serverId);
 
         SAMPServerInfo getServerInfo(int serverId);
-        QString rconCmd(int serverId,QString cmd);
+        QStringList rconCmd(int serverId,QString cmd);
 
         QStringList getGamemodes(int serverId);
         QStringList getFilterscripts(int serverId);

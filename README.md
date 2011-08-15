@@ -16,7 +16,7 @@ Features
 *    Change the Serversettings
 *    Filemanager
 *    News display
-*    RCON console (PHP SampRconAPI by Westie)
+*    RCON console
 *    Admin: create, edit and delete Users
 *    Admin: create, edit and delete Server
 *    Admin: create, edit and delete News
