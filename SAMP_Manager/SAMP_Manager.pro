@@ -50,3 +50,6 @@ FORMS    += gui/mainwindow.ui \
     gui/subgui/changepassword.ui \
     gui/subgui/showfile.ui \
     gui/subgui/adminaddnews.ui
+
+OTHER_FILES += \
+    config.ini

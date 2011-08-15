@@ -30,3 +30,6 @@ HEADERS += \
     client.h \
     samp/sampserver.h \
     crypt/simpleqtrc5.h
+
+OTHER_FILES += \
+    config.ini

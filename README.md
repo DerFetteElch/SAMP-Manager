@@ -5,7 +5,7 @@ Introduction
 ------------
 
 This is a Tool to control multiple GTA San Andreas Multiplayer Servers.
-It is writen in C++ with Qt and there is also some PHP, AutoIt and Shell.
+It is writen in C++ with Qt and there is also some AutoIt and Shell.
 
 
 Features
