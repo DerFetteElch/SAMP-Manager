@@ -33,7 +33,5 @@ On Windows you need AutoIt, too.
 Requirements
 -------
 
-The Server requires PHP.
-
 The Server is tested on Windows and Debian Lenny.
 The Client is tested on Windows.
