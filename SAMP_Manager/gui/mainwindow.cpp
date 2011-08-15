@@ -70,6 +70,7 @@ void MainWindow::sendResponse(QByteArray data){
     QDataStream stream(&data,QIODevice::ReadOnly);
     int id;
     stream>>id;
+    qDebug()<<"--->"<<id;
 
     if(id==PACKET_SC_HELLO){
         int vers;
@@ -577,6 +578,7 @@ void MainWindow::sendResponse(QByteArray data){
     }else if(id==PACKET_SC_RCON){
         QString dat;
         stream>>dat;
+        qDebug()<<"---";
         ui->rconConsole->appendPlainText(dat);
     }
     data.clear();
@@ -595,19 +597,21 @@ bool MainWindow::event(QEvent *e){
 
 void MainWindow::on_tabWidget_currentChanged(int index){
     if(serverList.value(ui->serverList->currentItem(),0)==0) return;
-    switch(ui->tabWidget->currentIndex()){
+    switch(index){
         case 2:{
             QByteArray data;
             QDataStream out(&data,QIODevice::WriteOnly);
             out<<PACKET_CS_GET_SERVERSETTINGS;
             out<<serverList.value(ui->serverList->currentItem());
             emit(send(data));
+            break;
         }case 3:{
             QByteArray data;
             QDataStream out(&data,QIODevice::WriteOnly);
             out<<PACKET_CS_FILE_LIST;
             out<<serverList.value(ui->serverList->currentItem());
             emit(send(data));
+            break;
         }
     }
 }
@@ -937,8 +941,8 @@ void MainWindow::on_sendButton_clicked(){
         out<<PACKET_CS_RCON;
         out<<serverList.value(ui->serverList->currentItem());
         out<<ui->rconCommand->text();
+        ui->rconCommand->setText("");
         emit(send(data));
-        ui->rconCommand->clear();
     }
 }
 

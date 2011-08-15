@@ -303,7 +303,29 @@ QString SAMPServer::rconCmd(int serverId, QString cmd){
         int port=xml->getAttribute(QString("data/server/server_%1/port").arg(serverId),"value",0);
         QString rconPassword=xml->getAttribute(QString("data/server/server_%1/config/rconPassword").arg(serverId),"value","");
 
-        QByteArray data;
+        QFile file(QString("server_%1_rcon.php").arg(serverId));
+        file.open(QIODevice::WriteOnly);
+        file.write("<?php\n");
+        file.write("require \"SampRconAPI.php\";\n");
+        file.write(QString("$rcon=new SampRconAPI(\"127.0.0.1\",%1,%2);\n").arg(port).arg(rconPassword).toAscii());
+        file.write(QString("$data=$rcon->Call(%1);\n").arg(cmd).toAscii());
+        file.write("for($i=0;i<sizeof($data);$i++){");
+        file.write("    if($data[$i]=="") break;");
+        file.write("    echo $data[$i].\"\\n\";");
+        file.write("}");
+        file.close();
+
+        QProcess process;
+        process.start("php",QStringList()<<QString("server_%1_rcon.php").arg(serverId));
+        process.closeWriteChannel();
+        process.waitForFinished();
+        QByteArray returnData=process.readAll();
+        if(!returnData.isEmpty()){
+            return returnData;
+        }else{
+            return QString();
+        }
+        /*QByteArray data;
         data.append("SAMP");
         data.append((char)127);
         data.append((char)0);
@@ -344,8 +366,8 @@ QString SAMPServer::rconCmd(int serverId, QString cmd){
                 ret.append(line);
                 ret.append("\n");
             }
-        }
-        return QString(ret);
+        }*/
+        //return ret;
     }else{
         return QString();
     }

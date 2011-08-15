@@ -735,9 +735,6 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_8">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <attribute name="title">
         <string>Rcon Console</string>
        </attribute>
