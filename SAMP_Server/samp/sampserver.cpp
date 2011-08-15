@@ -25,29 +25,18 @@ bool SAMPServer::newServer(int serverId){
         dir.mkdir(QString("servers/server_%1/logs/mysql").arg(serverId));
         dir.mkdir(QString("servers/server_%1/logs/samp").arg(serverId));
 
-        QFile::copy("serverData/server.cfg",QString("servers/server_%1/server.cfg").arg(serverId));
-
-#ifdef Q_WS_WIN
-        QFile::copy("serverData/samp-server.exe",QString("servers/server_%1/samp-server.exe").arg(serverId));
-        QFile::copy("serverData/samp-npc.exe",QString("servers/server_%1/samp-npc.exe").arg(serverId));
-        QFile::copy("serverData/libmysql.dll",QString("servers/server_%1/libmysql.dll").arg(serverId));
-        QFile::copy("serverData/announce.exe",QString("servers/server_%1/announce.exe").arg(serverId));
-
-        QFile::copy("serverData/start.exe",QString("servers/server_%1/start.exe").arg(serverId));
-        QFile::copy("serverData/stop.exe",QString("servers/server_%1/stop.exe").arg(serverId));
-#endif
-#ifdef Q_WS_X11
-        QFile::copy("serverData/samp03svr",QString("servers/server_%1/samp03svr").arg(serverId));
-        QFile::copy("serverData/samp-npc",QString("servers/server_%1/samp-npc").arg(serverId));
-        QFile::copy("serverData/announce",QString("servers/server_%1/announce").arg(serverId));
-
-        QFile::copy("serverData/start.sh",QString("servers/server_%1/start.sh").arg(serverId));
-        QFile::copy("serverData/stop.sh",QString("servers/server_%1/stop.sh").arg(serverId));
-#endif
-        QDir plugins("serverData/plugins");
-        QStringList fileList=plugins.entryList();
+        QDir serverData("serverData");
+        QFileInfoList fileList=serverData.entryInfoList();
         for(int i=0;i<fileList.count();i++){
-            QFile::copy(QString("serverData/plugins/%1").arg(fileList.at(i)),QString("servers/server_%1/plugins/%2").arg(serverId).arg(fileList.at(i)));
+            if(fileList.at(i).isDir()) continue;
+            QFile::copy(QString("serverData/%1").arg(fileList.at(i).fileName()),QString("servers/server_%1/%2").arg(serverId).arg(fileList.at(i).fileName()));
+        }
+
+        fileList.clear();
+        QDir plugins("serverData/plugins");
+        fileList=plugins.entryInfoList();
+        for(int i=0;i<fileList.count();i++){
+            QFile::copy(QString("serverData/plugins/%1").arg(fileList.at(i).fileName()),QString("servers/server_%1/plugins/%2").arg(serverId).arg(fileList.at(i).fileName()));
         }
 
         return true;
