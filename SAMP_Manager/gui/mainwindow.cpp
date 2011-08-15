@@ -70,7 +70,6 @@ void MainWindow::sendResponse(QByteArray data){
     QDataStream stream(&data,QIODevice::ReadOnly);
     int id;
     stream>>id;
-    qDebug()<<"--->"<<id;
 
     if(id==PACKET_SC_HELLO){
         int vers;
@@ -578,7 +577,6 @@ void MainWindow::sendResponse(QByteArray data){
     }else if(id==PACKET_SC_RCON){
         QString dat;
         stream>>dat;
-        qDebug()<<"---";
         ui->rconConsole->appendPlainText(dat);
     }
     data.clear();

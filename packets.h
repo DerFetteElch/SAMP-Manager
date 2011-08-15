@@ -65,6 +65,7 @@
 //RCON
 #define PACKET_CS_RCON 110
 #define PACKET_SC_RCON 110
+#define PACKET_SC_RCON_FAIL 111
 
 //News
 #define PACKET_CS_GET_NEWS 120

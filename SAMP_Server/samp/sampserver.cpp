@@ -308,11 +308,12 @@ QString SAMPServer::rconCmd(int serverId, QString cmd){
         file.write("<?php\n");
         file.write("require \"SampRconAPI.php\";\n");
         file.write(QString("$rcon=new SampRconAPI(\"127.0.0.1\",%1,%2);\n").arg(port).arg(rconPassword).toAscii());
-        file.write(QString("$data=$rcon->Call(%1);\n").arg(cmd).toAscii());
-        file.write("for($i=0;i<sizeof($data);$i++){");
-        file.write("    if($data[$i]=="") break;");
-        file.write("    echo $data[$i].\"\\n\";");
-        file.write("}");
+        file.write(QString("$data=$rcon->Call(\"%1\",0.3);\n").arg(cmd).toAscii());
+        file.write("for($i=0;$i<sizeof($data);$i++){\n");
+        file.write("    if($data[$i]==\"\") break;\n");
+        file.write("    echo $data[$i].\"\\n\";\n");
+        file.write("}\n");
+        file.write("?>");
         file.close();
 
         QProcess process;
@@ -502,6 +503,8 @@ void SAMPServer::checkServer(int serverId){
             xml->saveToFile();
             startServer(serverId);
         }
+    }else if(getServerInfo(serverId).online && xml->getAttribute(QString("data/server/server_%1/restartCount").arg(serverId),"value",0)!=0){
+        xml->setAttribute(QString("data/server/server_%1/restartCount").arg(serverId),"value",0);
     }
 }
 void SAMPServer::checkServers(){

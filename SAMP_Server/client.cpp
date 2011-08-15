@@ -599,7 +599,11 @@ void Client::readyRead(){
                 if(!ret.isNull()){
                     out<<PACKET_SC_RCON;
                     out<<ret;
+                }else{
+                    out<<PACKET_SC_RCON_FAIL;
                 }
+            }else{
+                out<<PACKET_SC_RCON_FAIL;
             }
 
 
