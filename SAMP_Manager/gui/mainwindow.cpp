@@ -203,20 +203,17 @@ void MainWindow::sendResponse(QByteArray data){
         QString headline,text;
         stream>>newsId>>headline>>time>>text;
 
+        if(newsIDs.count()==0){
+            ui->newsList->clear();
+        }
         QListWidgetItem* item=new QListWidgetItem(headline);
         newsIDs.insert(item,newsId);
         newsHeadline.insert(item,headline);
         newsTime.insert(item,time);
         newsText.insert(item,text);
 
-        if(newsIDs.count()==0){
-            ui->newsList->clear();
-            ui->newsList->addItem(item);
-            ui->newsList->setCurrentItem(item);
-        }else{
-            ui->newsList->insertItem(0,item);
-            ui->newsList->setCurrentItem(item);
-        }
+        ui->newsList->insertItem(0,item);
+        ui->newsList->setCurrentItem(item);
     }else if(id==PACKET_SC_CHANGE_NEWS){
         int newsId;
         QString headline,text;
