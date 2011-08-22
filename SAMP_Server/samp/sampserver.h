@@ -39,6 +39,7 @@ class SAMPServer{
         SAMPServer(XMLParser * xml);
 
         bool newServer(int serverId);
+        void updateServers();
 
         bool startServer(int serverId);
         bool stopServer(int serverId);

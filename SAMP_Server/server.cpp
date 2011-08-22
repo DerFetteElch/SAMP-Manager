@@ -37,6 +37,8 @@ Server::Server(QObject *parent) : QTcpServer(parent){
     errStream->open(2,QIODevice::WriteOnly);
     logStream=new QFile("samp_manager.log");
     logStream->open(QIODevice::Append);
+
+    samp->updateServers();
 }
 Server::~Server(){
     delete(samp);

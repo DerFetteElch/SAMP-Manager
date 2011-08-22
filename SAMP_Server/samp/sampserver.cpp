@@ -39,7 +39,39 @@ bool SAMPServer::newServer(int serverId){
             QFile::copy(QString("serverData/plugins/%1").arg(fileList.at(i).fileName()),QString("servers/server_%1/plugins/%2").arg(serverId).arg(fileList.at(i).fileName()));
         }
 
+#ifdef Q_WS_X11
+        QFile::copy(QString("servers/server_%1/samp03svr").arg(serverId),QString("servers/server_%1/samp03svr_%1").arg(serverId));
+#endif
+        xml->setAttribute(QString("data/server/server_%1/systemVersion").arg(serverId),"value",1);
+        xml->saveToFile();
         return true;
+    }
+}
+
+void SAMPServer::updateServers(){
+    QStringList list=xml->getElements("data/server");
+    for(int i=0;i<list.count();i++){
+        int serverId=list.at(i).split("_").at(1).toInt();
+        int v=xml->getAttribute(QString("data/server/server_%1/systemVersion").arg(serverId),"value",0);
+        if(v!=1){
+            bool restart=false;
+            if(getServerInfo(serverId).online){
+                stopServer(serverId);
+                restart=true;
+            }
+            if(v==0){
+#ifdef Q_WS_X11
+                QFile::copy(QString("servers/server_%1/samp03svr").arg(serverId),QString("servers/server_%1/samp03svr_%1").arg(serverId));
+                QFile::remove(QString("servers/server_%1/samp03svr").arg(serverId));
+#endif
+                v++;
+            }
+            xml->setAttribute(QString("data/server/server_%1/systemVersion").arg(serverId),"value",v);
+            xml->saveToFile();
+            if(restart){
+                startServer(serverId);
+            }
+        }
     }
 }
 
@@ -68,7 +100,7 @@ bool SAMPServer::startServer(int serverId){
             file.open(QIODevice::WriteOnly);
             file.write("#!/bin/sh\n");
             file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file.write("sh start.sh");
+            file.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
             file.flush();
             file.close();
             process.start(QString("sh server_%1_start.sh").arg(serverId));
@@ -95,7 +127,7 @@ bool SAMPServer::startServer(int serverId){
         file.open(QIODevice::WriteOnly);
         file.write("#!/bin/sh\n");
         file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-        file.write("sh start.sh");
+        file.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
         file.flush();
         file.close();
         process.start(QString("sh server_%1_start.sh").arg(serverId));
@@ -111,40 +143,35 @@ bool SAMPServer::startServer(int serverId){
     }
 }
 bool SAMPServer::stopServer(int serverId){
-    if(QFile::exists(QString("servers/server_%1/server.pid").arg(serverId))){
-        if(getServerInfo(serverId).online){
-            QProcess process;
+    if(getServerInfo(serverId).online){
+        QProcess process;
 #ifdef Q_WS_WIN
-            process.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
-            process.start(QString("servers/server_%1/stop.exe").arg(serverId));
+        process.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
+        process.start(QString("servers/server_%1/stop.exe").arg(serverId));
 #endif
 #ifdef Q_WS_X11
-            QFile file(QString("server_%1_stop.sh").arg(serverId));
-            file.open(QIODevice::WriteOnly);
-            file.write("#!/bin/sh\n");
-            file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file.write("sh stop.sh");
-            file.flush();
-            file.close();
-            process.start(QString("sh server_%1_stop.sh").arg(serverId));
+        QFile file(QString("server_%1_stop.sh").arg(serverId));
+        file.open(QIODevice::WriteOnly);
+        file.write("#!/bin/sh\n");
+        file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
+        file.flush();
+        file.close();
+        process.start(QString("sh server_%1_stop.sh").arg(serverId));
 #endif
-            process.closeWriteChannel();
-            process.waitForFinished();
-            QFile::copy(QString("servers/server_%1/server_log.txt").arg(serverId),QString("servers/server_%1/logs/samp/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
-            QFile::remove(QString("servers/server_%1/server_log.txt").arg(serverId));
-            if(QFile::exists(QString("servers/server_%1/mysql_log.txt").arg(serverId))){
-                QFile::copy(QString("servers/server_%1/mysql_log.txt").arg(serverId),QString("servers/server_%1/logs/mysql/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
-                QFile::remove(QString("servers/server_%1/mysql_log.txt").arg(serverId));
-            }
-            QFile log(QString("servers/server_%1/system_log.txt").arg(serverId));
-            log.open(QIODevice::Append);
-            log.write(QString("[%1] Server stoped!\n").arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")).toAscii());
-            log.flush();
-            log.close();
-            return true;
-        }else{
-            return false;
+        process.closeWriteChannel();
+        process.waitForFinished();
+        QFile::copy(QString("servers/server_%1/server_log.txt").arg(serverId),QString("servers/server_%1/logs/samp/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
+        QFile::remove(QString("servers/server_%1/server_log.txt").arg(serverId));
+        if(QFile::exists(QString("servers/server_%1/mysql_log.txt").arg(serverId))){
+            QFile::copy(QString("servers/server_%1/mysql_log.txt").arg(serverId),QString("servers/server_%1/logs/mysql/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
+            QFile::remove(QString("servers/server_%1/mysql_log.txt").arg(serverId));
         }
+        QFile log(QString("servers/server_%1/system_log.txt").arg(serverId));
+        log.open(QIODevice::Append);
+        log.write(QString("[%1] Server stoped!\n").arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")).toAscii());
+        log.flush();
+        log.close();
+        return true;
     }else{
         return false;
     }
@@ -162,8 +189,7 @@ bool SAMPServer::restartServer(int serverId){
             QFile file(QString("server_%1_stop.sh").arg(serverId));
             file.open(QIODevice::WriteOnly);
             file.write("#!/bin/sh\n");
-            file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file.write("sh stop.sh");
+            file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
             file.flush();
             file.close();
             process.start(QString("sh server_%1_stop.sh").arg(serverId));
@@ -186,7 +212,7 @@ bool SAMPServer::restartServer(int serverId){
             file2.open(QIODevice::WriteOnly);
             file2.write("#!/bin/sh\n");
             file2.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file2.write("sh start.sh");
+            file2.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
             file2.flush();
             file2.close();
             process.start(QString("sh server_%1_start.sh").arg(serverId));
