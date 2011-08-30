@@ -225,7 +225,7 @@ void Client::readyRead(){
                 xml->setAttribute(QString("data/server/server_%1/config/weburl").arg(serverId),"value",weburl);
                 xml->setAttribute(QString("data/server/server_%1/config/rconPassword").arg(serverId),"value",rconPassword);
                 xml->setAttribute(QString("data/server/server_%1/config/serverPassword").arg(serverId),"value",serverPassword);
-                xml->setAttribute(QString("data/server/server_%1/config/mapname").arg(serverId),"mapname",mapname);
+                xml->setAttribute(QString("data/server/server_%1/config/mapname").arg(serverId),"value",mapname);
 
                 QStringList activeGamemodes;
                 QList<int> gamemodeNums;
