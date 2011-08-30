@@ -178,56 +178,52 @@ bool SAMPServer::stopServer(int serverId){
 }
 bool SAMPServer::restartServer(int serverId){
     writeServerCfg(serverId);
-    if(QFile::exists(QString("servers/server_%1/server.pid").arg(serverId))){
-        if(getServerInfo(serverId).online){
-            QProcess process;
+    if(getServerInfo(serverId).online){
+        QProcess process;
 #ifdef Q_WS_WIN
-            process.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
-            process.start(QString("servers/server_%1/stop.exe").arg(serverId));
+        process.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
+        process.start(QString("servers/server_%1/stop.exe").arg(serverId));
 #endif
 #ifdef Q_WS_X11
-            QFile file(QString("server_%1_stop.sh").arg(serverId));
-            file.open(QIODevice::WriteOnly);
-            file.write("#!/bin/sh\n");
-            file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
-            file.flush();
-            file.close();
-            process.start(QString("sh server_%1_stop.sh").arg(serverId));
+        QFile file(QString("server_%1_stop.sh").arg(serverId));
+        file.open(QIODevice::WriteOnly);
+        file.write("#!/bin/sh\n");
+        file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
+        file.flush();
+        file.close();
+        process.start(QString("sh server_%1_stop.sh").arg(serverId));
 #endif
-            process.closeWriteChannel();
-            process.waitForFinished();
-            QFile::copy(QString("servers/server_%1/server_log.txt").arg(serverId),QString("servers/server_%1/logs/samp/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
-            QFile::remove(QString("servers/server_%1/server_log.txt").arg(serverId));
-            if(QFile::exists(QString("servers/server_%1/mysql_log.txt").arg(serverId))){
-                QFile::copy(QString("servers/server_%1/mysql_log.txt").arg(serverId),QString("servers/server_%1/logs/mysql/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
-                QFile::remove(QString("servers/server_%1/mysql_log.txt").arg(serverId));
-            }
-            QProcess process2;
-#ifdef Q_WS_WIN
-            process2.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
-            process.start(QString("servers/server_%1/start.exe").arg(serverId));
-#endif
-#ifdef Q_WS_X11
-            QFile file2(QString("server_%1_start.sh").arg(serverId));
-            file2.open(QIODevice::WriteOnly);
-            file2.write("#!/bin/sh\n");
-            file2.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file2.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
-            file2.flush();
-            file2.close();
-            process.start(QString("sh server_%1_start.sh").arg(serverId));
-#endif
-            process2.closeWriteChannel();
-            process2.waitForFinished();
-            QFile log(QString("servers/server_%1/system_log.txt").arg(serverId));
-            log.open(QIODevice::Append);
-            log.write(QString("[%1] Server restarted!\n").arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")).toAscii());
-            log.flush();
-            log.close();
-            return true;
-        }else{
-            return false;
+        process.closeWriteChannel();
+        process.waitForFinished();
+        QFile::copy(QString("servers/server_%1/server_log.txt").arg(serverId),QString("servers/server_%1/logs/samp/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
+        QFile::remove(QString("servers/server_%1/server_log.txt").arg(serverId));
+        if(QFile::exists(QString("servers/server_%1/mysql_log.txt").arg(serverId))){
+            QFile::copy(QString("servers/server_%1/mysql_log.txt").arg(serverId),QString("servers/server_%1/logs/mysql/%2.txt").arg(serverId).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")));
+            QFile::remove(QString("servers/server_%1/mysql_log.txt").arg(serverId));
         }
+        QProcess process2;
+#ifdef Q_WS_WIN
+        process2.setWorkingDirectory(QString("servers/server_%1").arg(serverId));
+        process.start(QString("servers/server_%1/start.exe").arg(serverId));
+#endif
+#ifdef Q_WS_X11
+        QFile file2(QString("server_%1_start.sh").arg(serverId));
+        file2.open(QIODevice::WriteOnly);
+        file2.write("#!/bin/sh\n");
+        file2.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
+        file2.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
+        file2.flush();
+        file2.close();
+        process.start(QString("sh server_%1_start.sh").arg(serverId));
+#endif
+        process2.closeWriteChannel();
+        process2.waitForFinished();
+        QFile log(QString("servers/server_%1/system_log.txt").arg(serverId));
+        log.open(QIODevice::Append);
+        log.write(QString("[%1] Server restarted!\n").arg(QDateTime::currentDateTime().toString("yyyy_MM_dd-hh_mm_ss")).toAscii());
+        log.flush();
+        log.close();
+        return true;
     }else{
         return false;
     }
