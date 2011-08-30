@@ -360,7 +360,7 @@
         <location filename="gui/subgui/filecreatedir.ui" line="26"/>
         <location filename="gui/subgui/filecreatedir.ui" line="48"/>
         <source>Create Dir</source>
-        <translation>Ordber erstellen</translation>
+        <translation>Ordner erstellen</translation>
     </message>
     <message>
         <location filename="gui/subgui/filecreatedir.ui" line="34"/>
