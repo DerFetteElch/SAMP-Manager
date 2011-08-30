@@ -99,8 +99,10 @@ bool SAMPServer::startServer(int serverId){
             QFile file(QString("server_%1_start.sh").arg(serverId));
             file.open(QIODevice::WriteOnly);
             file.write("#!/bin/sh\n");
-            file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-            file.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
+            file.write(QString("if ! pidof samp03svr_%1 >/dev/null ; then\n").arg(serverId).toAscii());
+            file.write(QString("    cd servers/server_%1/\n").arg(serverId).toAscii());
+            file.write(QString("    ./samp03svr_%1\n").arg(serverId).toAscii());
+            file.write("fi\n");
             file.flush();
             file.close();
             process.start(QString("sh server_%1_start.sh").arg(serverId));
@@ -126,8 +128,10 @@ bool SAMPServer::startServer(int serverId){
         QFile file(QString("server_%1_start.sh").arg(serverId));
         file.open(QIODevice::WriteOnly);
         file.write("#!/bin/sh\n");
-        file.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-        file.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
+        file.write(QString("if ! pidof samp03svr_%1 >/dev/null ; then\n").arg(serverId).toAscii());
+        file.write(QString("    cd servers/server_%1/\n").arg(serverId).toAscii());
+        file.write(QString("    ./samp03svr_%1\n").arg(serverId).toAscii());
+        file.write("fi\n");
         file.flush();
         file.close();
         process.start(QString("sh server_%1_start.sh").arg(serverId));
@@ -153,7 +157,7 @@ bool SAMPServer::stopServer(int serverId){
         QFile file(QString("server_%1_stop.sh").arg(serverId));
         file.open(QIODevice::WriteOnly);
         file.write("#!/bin/sh\n");
-        file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
+        file.write(QString("killall -e samp03svr_%1\n").arg(serverId).toAscii());
         file.flush();
         file.close();
         process.start(QString("sh server_%1_stop.sh").arg(serverId));
@@ -188,7 +192,7 @@ bool SAMPServer::restartServer(int serverId){
         QFile file(QString("server_%1_stop.sh").arg(serverId));
         file.open(QIODevice::WriteOnly);
         file.write("#!/bin/sh\n");
-        file.write(QString("killall samp03svr_%1\n").arg(serverId).toAscii());
+        file.write(QString("killall -e samp03svr_%1\n").arg(serverId).toAscii());
         file.flush();
         file.close();
         process.start(QString("sh server_%1_stop.sh").arg(serverId));
@@ -210,8 +214,10 @@ bool SAMPServer::restartServer(int serverId){
         QFile file2(QString("server_%1_start.sh").arg(serverId));
         file2.open(QIODevice::WriteOnly);
         file2.write("#!/bin/sh\n");
-        file2.write(QString("cd servers/server_%1/\n").arg(serverId).toAscii());
-        file2.write(QString("./samp03svr_%1\n").arg(serverId).toAscii());
+        file.write(QString("if ! pidof samp03svr_%1 >/dev/null ; then\n").arg(serverId).toAscii());
+        file.write(QString("    cd servers/server_%1/\n").arg(serverId).toAscii());
+        file.write(QString("    ./samp03svr_%1\n").arg(serverId).toAscii());
+        file.write("fi\n");
         file2.flush();
         file2.close();
         process.start(QString("sh server_%1_start.sh").arg(serverId));
